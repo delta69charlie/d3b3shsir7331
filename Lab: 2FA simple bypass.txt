@@ -1,0 +1,113 @@
+Lab: 2FA simple bypass
+
+
+    ->Log in to your own account. Your 2FA verification code will be sent to you by email. Click the Email client button to access your emails.
+    ->Go to your account page and make a note of the URL.
+    ->Log out of your account.
+   -> Log in using the victim's credentials.
+   -> When prompted for the verification code, manually change the URL to navigate to /my-account. The lab is solved when the page loads.
+
+Lab: 2FA broken logic
+ Send the GET /login2 request to Burp Repeater. Change the value of the verify parameter to carlos and send the request. 
+ his ensures that a temporary 2FA code is generated for Carlos.
+ Go to the login page and enter your username and password. Then, submit an invalid 2FA code.
+ Send the POST /login2 request to Burp Intruder.
+ In Burp Intruder, set the verify parameter to carlos and add a payload position to the mfa-code parameter. Brute-force the verification code.
+ Load the 302 response in your browser. 
+
+
+
+Lab: Password reset broken logic
+
+
+    With Burp running, click the Forgot your password? link and enter your own username.
+    Click the Email client button to view the password reset email that was sent. Click the link in the email and reset your password to whatever you want.
+    In Burp, go to Proxy > HTTP history and study the requests and responses for the password reset functionality. Observe that the reset token is provided as a URL query parameter in the reset email. Notice that when you submit your new password, the POST /forgot-password?temp-
+    forgot-password-token request contains the username as hidden input. Send this request to Burp Repeater.
+    In Burp Repeater, observe that the password reset functionality still works even if you delete the value of the temp-forgot-password-token parameter in both the URL and request body. This confirms that the token is not being checked when you submit the new password.
+    In your browser, request a new password reset and change your password again. Send the POST /forgot-password?temp-forgot-password-token request to Burp Repeater again.
+    In Burp Repeater, delete the value of the temp-forgot-password-token parameter in both the URL and request body. Change the username parameter to carlos. Set the new password to whatever you want and send the request.
+    In your browser, log in to Carlos's account using the new password you just set. Click My account to solve the lab.
+
+Lab: 2FA bypass using a brute-force attack
+
+
+ With Burp running, log in as carlos and investigate the 2FA verification process. Notice that if you enter the wrong code twice, you will be logged out again. 
+ You need to use Burp's session handling features to log back in automatically before sending each request.
+
+ In Burp, go to Project options > Sessions.
+ In the Session Handling Rules panel, click Add. 
+ The Session handling rule editor dialog opens.
+ In the dialog, go to the Scope tab. Under URL Scope, select the option Include all URLs.
+
+ Go back to the Details tab and under Rule Actions, click Add > Run a macro.
+
+ Under Select macro click Add to open the Macro Recorder. Select the following 3 requests:
+ GET /login
+ POST /login
+ GET /login2
+
+ Then click OK. The Macro Editor dialog opens.
+ Click Test macro and check that the final response contains the page asking you to provide the 4-digit security code. This confirms that the macro is working correctly.
+ Keep clicking OK to close the various dialogs until you get back to the main Burp window. 
+ The macro will now automatically log you back in as Carlos before each request is sent by Burp Intruder.
+ Send the POST /login2 request to Burp Intruder.
+ In Burp Intruder, add a payload position to the mfa-code parameter.
+ On the Payloads tab, select the Numbers payload type. Enter the range 0 - 9999 and set the step to 1. Set the min/max integer digits to 4 and max fraction digits to 0. This will create a payload for every possible 4-digit integer.
+ Go to the Resource pool tab and add the attack to a resource pool with the Maximum concurrent requests set to 1.
+ Start the attack. Eventually, one of the requests will return a 302 status code. Right-click on this request and select Show response in browser. Copy the URL and load it in your browser.
+ Click My account to solve the lab
+
+
+lab: Password reset poisioning/Password reset poisoning via middleware:
+
+
+ intercept the post method of POST /forgot-password
+ forward the post method of POST /forgot-password using X-Forwarded-Host to the exploit server to get reset token
+ change the password 
+ login as carlos
+
+
+Lab: Password reset poisoning via dangling markup
+ intercept the post/forgot passwordand send it to burp Repeater
+ change username and at the following paylos in host to bypass email
+ :'><img src="https://exploit-acac1ff21fdb2eadc0916ecf01a6001b.web-security-academy.net/
+ check access log on exploit server to get new possword
+ login with new password
+
+
+Lab: Password brute-force via password change
+
+ intercept post/change pwd putting different new password
+ ->that way you will know if the the previous password was correct and moves to change password
+ ->add current password position and start attack you will see the new password doesn't match header
+
+Lab: File path traversal, simple case
+ This lab contains a file path traversal vulnerability in the display of product images.
+
+ To solve the lab, retrieve the contents of the /etc/passwd file.
+
+Lab: File path traversal, traversal sequences blocked with absolute path bypass
+
+    Use Burp Suite to intercept and modify a request that fetches a product image.
+    Modify the filename parameter, giving it the value /etc/passwd.
+    Observe that the response contains the contents of the /etc/passwd file.
+
+Lab: File path traversal, traversal sequences stripped with superfluous URL-decode
+  Use Burp Suite to intercept and modify a request that fetches a product image.
+ Modify the filename parameter: since the direct path traversal sequences are blocked and get decoded so we need to encode twice the path traversal
+
+other techniques
+ ->File path traversal, validation of start of path: /var/www/../../../etc/passwd 
+ ->File path traversal, validation of file extension with null byte bypass:(If an application requires that the user-supplied 
+ filename must end with an expected file extension, such as .png, 
+ then it might be possible to use a null byte to effectively terminate the file path before the required extension.)filename=../../../etc/passwd%00.png
+
+
+
+
+
+
+
+
+

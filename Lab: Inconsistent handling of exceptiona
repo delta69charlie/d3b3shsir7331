@@ -1,0 +1,66 @@
+Lab: Inconsistent handling of exceptional input
+ this lab in login email section only 256 character are allowed .. so registering using more than 256 character 
+ occurs exception. 
+ and only admin holds the @dontwannacry domain so after adding exploit servers domain after 256character(name+@dontwannacry) redirects the registration to the exploit server so 
+ before we used @dontwannacry it will give us the admins privillage ..after that u can delete carlos account
+
+Lab: Insufficient workflow validation
+ observe sequence of events in the purchase process
+ copy the parameter of successful purchase and match it with unsuccessful one and change it
+
+
+Lab: Authentication bypass via flawed state machine
+ With Burp running, complete the login process and notice that you need to select your role before you are taken to the home page.
+ Use the content discovery tool to identify the /admin path.
+ Try browsing to /admin directly from the role selection page and observe that this doesn't work.
+ Log out and then go back to the login page. In Burp, turn on proxy intercept then log in.
+ Forward the POST /login request. The next request is GET /role-selector.
+ Drop this request and then browse to the lab's home page. Observe that your role has defaulted to the administrator role and you have access to the admin panel. 
+ 
+ 
+ 
+ 
+Lab: Weak isolation on dual-use endpoint 
+ With Burp running, log in and access your account page.
+ Change your password.
+ Study the POST /my-account/change-password request in Burp Repeater.
+ Notice that if you remove the current-password parameter entirely, 
+ you are able to successfully change your password without providing your current one.
+ Observe that the user whose password is changed is determined by the username parameter. 
+ Set username=administrator and send the request again.
+ Log out and notice that you can now successfully log in as the administrator using the password you just set.
+
+
+
+
+
+
+Lab: Flawed enforcement of business rules
+
+Lab: Flawed enforcement of business rules
+ there is coupon of 5$ and if you are signing for first time you will get 30% discount coupen .
+ add the item into cart and aplly both coupon one by one until you match balance amount$
+
+
+Lab: Infinite money logic flaw
+ Go to "Project options" > "Sessions". In the "Session handling rules" panel, click "Add". The "Session handling rule editor" dialog opens.
+ In the dialog, go to the "Scope" tab. Under "URL Scope", select "Include all URLs".
+ Go back to the "Details" tab. Under "Rule actions", click "Add" > "Run a macro". Under "Select macro", click "Add" again to open the Macro Recorder.
+ Select the following sequence of requests:
+ POST /cart
+ POST /cart/coupon
+ POST /cart/checkout
+ GET /cart/order-confirmation?order-confirmed=true
+ POST /gift-card
+ Then, click "OK". The Macro Editor opens.
+
+
+
+
+
+
+
+
+
+
+

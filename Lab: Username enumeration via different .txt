@@ -1,0 +1,93 @@
+Lab: Username enumeration via different responses
+APPRENTICE
+LAB Not solved
+
+This lab is vulnerable to username enumeration and password brute-force attacks. It has an account with a predictable username and password, which can be found in the following wordlists:
+
+    Candidate usernames
+    Candidate passwords
+
+To solve the lab, enumerate a valid username, brute-force this user's password, then access their account page.
+Solution
+
+    With Burp running, investigate the login page and submit an invalid username and password.
+    In Burp, go to Proxy > HTTP history and find the POST /login request. Send this to Burp Intruder.
+    In Burp Intruder, go to the Positions tab. Make sure that the Sniper attack type is selected.
+    Click Clear § to remove any automatically assigned payload positions. Highlight the value of the username parameter and click Add § to set it as a payload position. This position will be indicated by two § symbols, for example: username=§invalid-username§. Leave the password as any static value for now.
+    On the Payloads tab, make sure that the Simple list payload type is selected.
+    Under Payload options, paste the list of candidate usernames. Finally, click Start attack. The attack will start in a new window.
+    When the attack is finished, on the Results tab, examine the Length column. You can click on the column header to sort the results. Notice that one of the entries is longer than the others. Compare the response to this payload with the other responses. Notice that other responses contain the message Invalid username, but this response says Incorrect password. Make a note of the username in the Payload column.
+
+    Close the attack and go back to the Positions tab. Click Clear, then change the username parameter to the username you just identified. Add a payload position to the password parameter. The result should look something like this:
+    username=identified-user&password=§invalid-password§
+    On the Payloads tab, clear the list of usernames and replace it with the list of candidate passwords. Click Start attack.
+    When the attack is finished, look at the Status column. Notice that each request received a response with a 200 status code except for one, which got a 302 response. This suggests that the login attempt was successful - make a note of the password in the Payload column.
+
+    Log in using the username and password that you identified and access the user account page to solve the lab. 
+    apollo
+
+    
+    
+    
+    
+    Lab: Username enumeration via subtly different responses
+PRACTITIONER
+LAB Not solved
+
+This lab is subtly vulnerable to username enumeration and password brute-force attacks. It has an account with a predictable username and password, which can be found in the following wordlists:
+
+    Candidate usernames
+    Candidate passwords
+
+To solve the lab, enumerate a valid username, brute-force this user's password, then access their account page.
+Solution
+
+    With Burp running, submit an invalid username and password. Send the POST /login request to Burp Intruder and add a payload position to the username parameter.
+    On the Payloads tab, make sure that the Simple list payload type is selected and add the list of candidate usernames.
+    On the Options tab, under Grep - Extract, click Add. In the dialog that appears, scroll down through the response until you find the error message Invalid username or password.. Use the mouse to highlight the text content of the message. The other settings will be automatically adjusted. Click OK and then start the attack.
+    When the attack is finished, notice that there is an additional column containing the error message you extracted. Sort the results using this column to notice that one of them is subtly different.
+    Look closer at this response and notice that it contains a typo in the error message - instead of a full stop/period, there is a trailing space. Make a note of this username.
+
+    Close the attack and go back to the Positions tab. Insert the username you just identified and add a payload position to the password parameter:
+    username=identified-user&password=§invalid-password§
+    On the Payloads tab, clear the list of usernames and replace it with the list of passwords. Start the attack.
+    When the attack is finished, notice that one of the requests received a 302 response. Make a note of this password.
+
+    Log in using the username and password that you identified and access the user account page to solve the lab.
+    Note
+
+    It's also possible to brute-force the login using a single cluster bomb attack. However, it's generally much more efficient to enumerate a valid username first if possible.
+
+    Lab: Username enumeration via response timing
+    check if it supports X-Forwarded-For header
+    bypass ip block
+    and do your things however you like
+
+    Lab: Broken brute-force protection, IP block
+     This lab is vulnerable due to a logic flaw in its password brute-force protection. To solve the lab, brute-force the victim's password, then log in and access their account page.
+
+    Your credentials: wiener:peter
+    Victim's username: carlos 
+    After certain attempt of trying incorrect password it blocks users from looging in for 1 minute .
+    So to bruteforce password for user carlos we use series of knon user wiener's pw and bruteforce password for carlos to avoid ip block 
+
+Username enumeration via account lock:
+ On the Payloads tab, add the list of usernames to the first payload set.
+ For the second set, select the Null payloads type and choose the option to generate 5 payloads. 
+ This will effectively cause each username to be repeated 5 times. Start the attack.
+ In the results, notice that the responses for one of the usernames were longer than responses when using other usernames. 
+ Study the response more closely and notice that it contains a different error message: You have made too many incorrect login attempts. Make a note of this username.
+ albuquerque
+  Add the list of passwords to the payload set and create a grep extraction rule for the error message. Start the attack. 
+
+
+Lab: Broken brute-force protection, multiple credentials per request
+n Burp Repeater, replace the single string value of the password with an array of strings containing all of the candidate passwords. For example:
+"username" : "carlos",
+"password" : [
+    "123456",
+    "password",
+    "qwerty"
+    ...
+]
+Send the request. This will return a 302 response. 
